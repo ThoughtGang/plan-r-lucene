@@ -1,0 +1,74 @@
+# Ruby Rakefile for Plan R plugins using Lucene and Tika
+# (c) Copyright 2016 Thoughtgang <http://www.thoughtgang.org>
+
+MOD_NAME    = 'plan-r-lucene'
+MOD_VERSION = '0.1'
+MOD_SUMMARY = 'Plan R Lucene plugins'
+MOD_DESCR   = 'Plan R plugins based on Apache Lucene project'
+
+require 'rdoc/task'
+require 'rake/testtask'
+require 'rubygems/package_task'
+require 'fileutils'
+require 'rbconfig'
+
+# ---------------------------------------------------------------------- 
+# DEFAULT INSTALL LOCATIONS
+IS_WINDOWS = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+def get_sys_bin_install_dir
+  # FIXME: if windows
+  dir = RbConfig::CONFIG['bindir']
+  dir == '/usr/bin' ? '/usr/local/bin' : '/usr/bin'
+end
+SYS_LIB_DIR = RbConfig::CONFIG['sitelibdir']
+HOME_LIB_DIR = File.join(Dir.home, 'lib', 'ruby')
+
+# ---------------------------------------------------------------------- 
+# FILES
+
+# recursively include all .rb files in path
+def files_in_path(path)
+  files = [ path + File::SEPARATOR + '*.rb' ]
+  dirs = Dir.new(path).reject{ |f| f.start_with? '.' 
+                     }.collect { |f| path + File::SEPARATOR + f 
+                     }.select { |f| File.directory? f }.each { |d|
+                       files.concat(files_in_path(d)) 
+                     }
+  files
+end
+
+JAVA_FILES = FileList[ 'lib/plan-r/plugins/shared/jruby/java/lucene-core.jar', 
+                       'lib/plan-r/plugins/shared/jruby/java/tika-app.jar' ]
+MOD_FILES = FileList[ files_in_path('lib/plan-r/plugins') ]
+
+INSTALL_LIB_FILES = MOD_FILES + JAVA_FILES
+UNINSTALL_LIB_FILES = MOD_FILES + JAVA_FILES
+
+# ---------------------------------------------------------------------- 
+namespace :build do
+  # build package
+  spec = Gem::Specification.new do |spec|
+    spec.name = MOD_NAME
+    spec.version = MOD_VERSION
+    spec.summary = MOD_SUMMARY
+    spec.description = MOD_DESCR
+
+    spec.authors = 'https://github.com/ThoughtGang'
+    spec.email = 'mkfs@users.noreply.github.com'
+    spec.homepage = 'https://github.com/ThoughtGang/plan-r-lucene'
+    spec.licenses = [ "BSD" ]
+
+    spec.required_ruby_version = '>= 2.2.0'
+    spec.requirements = ['JRuby']
+    spec.add_dependency('plan-r', '>= 0.5'
+
+    spec.files = MOD_FILES + JAVA_FILES
+  end
+
+  desc 'Build Plan-R Lucene plugins .gem'
+  Gem::PackageTask.new(spec) do |pkg|
+    pkg.need_zip = false
+    pkg.need_tar = true
+  end
+end
+

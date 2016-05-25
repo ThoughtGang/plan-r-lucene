@@ -5,7 +5,9 @@ Apache Lucene and Tika plugins for Plan-R
 This repo includes an internal version of Lucene and Tika. See
 LICENSE.APACHE for distribution terms for these JAR files.
 
-The JAR files for Lucene and Tika are in lib/java. The API for both libraries
+The JAR files for Lucene and Tika are in lib/plan-r/plugins/shared/jruby/java 
+
+The API for both libraries
 is stable enough that these files can be replaced with a symlink to 
 locally-installed JARs.
 

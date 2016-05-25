@@ -15,6 +15,11 @@ raise ScriptError.new("Lucene requires JRuby") unless RUBY_PLATFORM =~ /java/
 # =============================================================================
 # LUCENE Core module
 
+# Add location of JAR files to load path                                        
+if (! $:.include? File.expand_path(File.dirname(File.dirname(__FILE__))))
+  $:.unshift File.expand_path(File.dirname(File.dirname(__FILE__)))
+end
+
 require 'java/lucene-core.jar'
 require 'plan-r/plugins/shared/lucene/settings'
 

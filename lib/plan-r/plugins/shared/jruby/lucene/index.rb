@@ -5,8 +5,7 @@
 NOTE: This module should only be loaded in a JRuby process.
 =end
 
-require 'java/lucene-core.jar'
-require 'plan-r/plugins/shared/lucene/settings'
+require 'plan-r/plugins/shared/jruby/lucene/core'
 
 # =============================================================================
 module Lucene
